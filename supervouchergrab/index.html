@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Super Voucher Grab</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+</head>
+<body>
+
+    <script>
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 200 }
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+			update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+	var player;
+	var gameOver = false;
+	var scoreText;
+	var vouchers;
+
+    function preload ()
+    {
+        this.load.setBaseURL('/supervouchergrab/');
+
+        this.load.image('bg', 'background.png');
+        this.load.image('logo', 'logo.png');
+		this.load.image('player', 'panda.png');
+		this.load.image('ground', 'platform.png');
+		this.load.image('voucher', 'voucher.png');
+    }
+
+    function create ()
+    {
+        this.add.image(400, 300, 'bg');
+
+
+        var logo = this.add.image(400, 100, 'logo');
+		scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+
+        //logo.setVelocity(100, 200);
+        //logo.setBounce(1, 1);
+        //logo.setCollideWorldBounds(true);
+		
+		player = this.physics.add.image(80,100,'player');
+		player.setBounce(0.2);
+		player.setCollideWorldBounds(true);
+		
+		platforms = this.physics.add.staticGroup();
+
+		platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+		//platforms.create(600, 400, 'ground');
+		//platforms.create(50, 250, 'ground');
+		//platforms.create(750, 220, 'ground');
+		
+		voucherss = this.physics.add.group({
+        key: 'voucher',
+        repeat: 11,
+        setXY: { x: 12, y: 0, stepX: 70 }
+    });
+
+    stars.children.iterate(function (child) {
+
+        //  Give each star a slightly different bounce
+        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
+    });
+		
+		this.physics.add.collider(player, platforms);
+    }
+	
+	function update ()
+	{
+		if (gameOver)
+		{
+			return;
+		}
+		
+		cursors = this.input.keyboard.createCursorKeys();
+		
+		if (cursors.left.isDown)
+		{
+			player.setVelocityX(-160);
+
+		}
+		else if (cursors.right.isDown)
+		{
+			player.setVelocityX(160);
+		}
+		else
+		{
+			player.setVelocityX(0);
+		}
+
+		if (cursors.up.isDown && player.body.touching.down)
+		{
+			player.setVelocityY(-330);
+		}
+	}
+	
+	function collectVoucher (player, voucher)
+	{
+		voucher.disableBody(true, true);
+
+		//  Add and update the score
+		score += 10;
+		scoreText.setText('Score: ' + score);
+
+		if (voucher.countActive(true) === 0)
+		{
+			//  A new batch of stars to collect
+			voucher.children.iterate(function (child) {
+
+				child.enableBody(true, child.x, 0, true, true);
+
+			});
+		}
+	}
+    </script>
+
+</body>
+</html>
