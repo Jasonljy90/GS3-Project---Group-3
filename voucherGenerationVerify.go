@@ -34,23 +34,81 @@ func generateSecretKey() []byte {
 	return key
 }
 
-func generateVoucher(email string) string {
+func generateVoucher3Off(email string) string {
 	token, err := maker.CreateToken(email, time.Hour*24)
 	if err != nil {
 		fmt.Println("Error creating token")
 		return ""
 	}
-	return token
+	resultToken := "3" + token
+	return resultToken
 }
 
-func verifyVoucher(token string) {
+func generateVoucher4Off(email string) string {
+	token, err := maker.CreateToken(email, time.Hour*24)
+	if err != nil {
+		fmt.Println("Error creating token")
+		return ""
+	}
+	resultToken := "4" + token
+	return resultToken
+}
+
+func generateVoucher5Off(email string) string {
+	token, err := maker.CreateToken(email, time.Hour*24)
+	if err != nil {
+		fmt.Println("Error creating token")
+		return ""
+	}
+	resultToken := "5" + token
+	return resultToken
+}
+
+func checkVoucher(resultToken string) {
+	discount := resultToken[0]
+	token := resultToken[1:]
+	switch discount {
+	case 3:
+		result := verifyVoucher(token)
+		if result {
+			fmt.Println("3Off")
+		}
+	case 4:
+		result := verifyVoucher(token)
+		if result {
+			fmt.Println("4Off")
+		}
+	case 5:
+		result := verifyVoucher(token)
+		if result {
+			fmt.Println("5Off")
+		}
+	default:
+		fmt.Println("Invalid Input")
+	}
+}
+
+func verifyVoucher(token string) bool {
 	// Verify whether token is valid
 	_, err := maker.VerifyToken(token)
 	if err != nil {
 		fmt.Println("Invalid voucher")
-		return
+		return false
 	}
-	fmt.Println("Voucher Valid")
+	return true
+}
+
+func pointsConverter(points int) (voucher string) {
+	email := "email" // user email
+	discount := points / 100
+	if discount >= 3 && discount < 4 {
+		voucher = generateVoucher3Off(email)
+	} else if discount >= 4 && discount < 5 {
+		voucher = generateVoucher4Off(email)
+	} else if discount >= 5 {
+		voucher = generateVoucher5Off(email)
+	}
+	return voucher
 }
 
 /*
