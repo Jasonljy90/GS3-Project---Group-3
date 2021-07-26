@@ -30,6 +30,8 @@
 	var scoreText;
 	var score = 0;
 	var vouchers;
+	var counter = 0;
+	var awardText;
 
     function preload ()
     {
@@ -52,7 +54,8 @@
 		music.play();
 
         var logo = this.add.image(400, 100, 'logo');
-		scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+		scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
+		awardText = this.add.text(20, 400, '' , { fontSize: '32px', fill: '#F00' });
 
 		player = this.physics.add.sprite(400, 500, 'player');
 		player.setBounce(0.2);
@@ -103,6 +106,22 @@
 		{
 			return;
 		}
+
+		counter = counter + 1;
+
+		if (counter > 800)
+		{
+			fetch("http://localhost:8081/getvoucher").then(function(response) {
+				response.text().then(function(text) {
+					//alert(text);
+					awardText.setText('You have won: ' + text);
+				});
+				
+			}, reason => {
+				awardText.setText('There was an error getting your reward');
+			});
+			gameOver = true
+		}
 		
 		cursors = this.input.keyboard.createCursorKeys();
 		
@@ -122,23 +141,29 @@
 			player.anims.play('turn', true);
 		}
 		
-			vouchers.children.iterate(function (child) {
-				if (child.y > 1000){
-					child.y = -100;
-					child.enableBody(true, child.x, 0, true, true);
-				}
-			});
+		vouchers.children.iterate(function (child) {
+			if (child.y > 1000){
+				child.y = -100;
+				child.enableBody(true, child.x, 0, true, true);
+			}
+		});
 	}
-	
+
 	function collectVoucher (player, voucher)
 	{
 		voucher.disableBody(true, true);
 
 		//  Add and update the score
 		score += 10;
-		scoreText.setText('Score: ' + score);
+		scoreText.setText('Score: ' + score);		
+	}
 
-			
+	function getFromAPI(url, callback){
+		var obj;
+		fetch(url)
+			.then(res => res.json())
+			.then(data => obj = data)
+			.then(() => callback(obj))
 	}
     </script>
 
