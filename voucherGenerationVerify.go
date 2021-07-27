@@ -1,13 +1,10 @@
 package main
 
 import (
-	"cookie/token"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"time"
-
-	"github.com/dchest/authcookie"
 )
 
 // MinTokenLength is the minimum allowed length of token string.
@@ -15,14 +12,14 @@ import (
 // a token to VerifyToken function, check that it has length less than [the
 // maximum login length allowed in your application] + MinTokenLength.
 var (
-	MinTokenLength = authcookie.MinLength
+	//MinTokenLength = authcookie.MinLength
+	MinTokenLength = 8
 )
 
 var (
 	ErrMalformedToken = errors.New("malformed token")
 	ErrExpiredToken   = errors.New("token expired")
 	ErrWrongSignature = errors.New("wrong token signature")
-	maker             token.Maker
 )
 
 func generateSecretKey() []byte {
@@ -36,6 +33,7 @@ func generateSecretKey() []byte {
 
 func generateVoucher3Off(email string) string {
 	token, err := maker.CreateToken(email, time.Hour*24)
+	fmt.Println(token)
 	if err != nil {
 		fmt.Println("Error creating token")
 		return ""
@@ -99,14 +97,14 @@ func verifyVoucher(token string) bool {
 }
 
 func pointsConverter(points int) (voucher string) {
-	email := "email" // user email
+	//email := "email" // user email
 	discount := points / 100
 	if discount >= 3 && discount < 4 {
-		voucher = generateVoucher3Off(email)
+		voucher = generateVoucher3Off("hello")
 	} else if discount >= 4 && discount < 5 {
-		voucher = generateVoucher4Off(email)
+		voucher = generateVoucher4Off("hello")
 	} else if discount >= 5 {
-		voucher = generateVoucher5Off(email)
+		voucher = generateVoucher5Off("hello")
 	}
 	return voucher
 }
