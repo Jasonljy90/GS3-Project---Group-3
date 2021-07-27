@@ -65,6 +65,7 @@ func generateVoucher5Off(email string) string {
 
 func checkVoucher(resultToken string) {
 	discount := string(resultToken[0])
+	// discount := resultToken[0] //gives hex value
 	fmt.Println(discount)
 	token := resultToken[1:]
 
