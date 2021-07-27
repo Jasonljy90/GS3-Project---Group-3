@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/dchest/authcookie"
 )
 
 // MinTokenLength is the minimum allowed length of token string.
@@ -12,8 +14,8 @@ import (
 // a token to VerifyToken function, check that it has length less than [the
 // maximum login length allowed in your application] + MinTokenLength.
 var (
-	//MinTokenLength = authcookie.MinLength
-	MinTokenLength = 8
+	MinTokenLength = authcookie.MinLength
+	//MinTokenLength = 8
 )
 
 var (
@@ -33,7 +35,6 @@ func generateSecretKey() []byte {
 
 func generateVoucher3Off(email string) string {
 	token, err := maker.CreateToken(email, time.Hour*24)
-	fmt.Println(token)
 	if err != nil {
 		fmt.Println("Error creating token")
 		return ""
@@ -63,20 +64,22 @@ func generateVoucher5Off(email string) string {
 }
 
 func checkVoucher(resultToken string) {
-	discount := resultToken[0]
+	discount := string(resultToken[0])
+	fmt.Println(discount)
 	token := resultToken[1:]
+
 	switch discount {
-	case 3:
+	case "3":
 		result := verifyVoucher(token)
 		if result {
 			fmt.Println("3Off")
 		}
-	case 4:
+	case "4":
 		result := verifyVoucher(token)
 		if result {
 			fmt.Println("4Off")
 		}
-	case 5:
+	case "5":
 		result := verifyVoucher(token)
 		if result {
 			fmt.Println("5Off")
@@ -96,47 +99,15 @@ func verifyVoucher(token string) bool {
 	return true
 }
 
-func pointsConverter(points int) (voucher string) {
+func pointsConverter(points int, email string) (voucher string) {
 	//email := "email" // user email
 	discount := points / 100
 	if discount >= 3 && discount < 4 {
-		voucher = generateVoucher3Off("hello")
+		voucher = generateVoucher3Off(email)
 	} else if discount >= 4 && discount < 5 {
-		voucher = generateVoucher4Off("hello")
+		voucher = generateVoucher4Off(email)
 	} else if discount >= 5 {
-		voucher = generateVoucher5Off("hello")
+		voucher = generateVoucher5Off(email)
 	}
 	return voucher
 }
-
-/*
-func resetBuyerPassword(email string) {
-	token, err := maker.CreateToken(email, time.Minute*30)
-	if err != nil {
-		fmt.Println("Error creating token")
-		return
-	}
-
-	Link := "https://localhost:5221/buyertoken/" + token
-	sendEmail(email, Link)
-}
-
-func resetBuyerPasswordLinkClicked(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	tokenStr := vars["token"]
-
-	// Verify whether token is valid
-	_, err := maker.VerifyToken(tokenStr)
-	if err != nil {
-		io.WriteString(res, `
- 			<html>
-			 <meta http-equiv='refresh' content='5; url=/ '/>
-			 Password reset link has expired! <br>
-			 You will be redirected shortly in 5 seconds...<br>
- 			</html>
- 		`)
-		return
-	}
-	http.Redirect(res, req, "/buyerresetchangepassword", http.StatusSeeOther)
-}
-*/
